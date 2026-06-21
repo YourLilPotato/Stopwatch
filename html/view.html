@@ -1,11 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>start</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bench Timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
-        <!-- <h1>Start</h1>        -->
+  <main class="instrument">
+    <header class="head">
+      <span class="eyebrow">Bench Timer</span>
+      <span class="status" data-status>
+        <span class="status__dot" aria-hidden="true"></span>
+        <span class="status__label" data-status-label>Ready</span>
+      </span>
+    </header>
+
+    <section class="readout" aria-live="off">
+     
+      <div class="time" data-time aria-label="Elapsed time">
+        <span class="time__main" data-main>00:00</span><span class="time__frac" data-frac>.00</span>
+      </div>
+      <div class="sweep" aria-hidden="true">
+        <span class="sweep__fill" data-sweep></span>
+      </div>
+    </section>
+
+    <section class="controls">
+      <button class="btn btn--start" data-start type="button">Start</button>
+      <button class="btn btn--stop" data-stop type="button" disabled>Stop</button>
+      <button class="btn btn--reset" data-reset type="button" disabled>Reset</button>
+    </section>
+
+    <footer class="hint">
+      <kbd>Space</kbd> start &amp; stop<span class="hint__sep">·</span><kbd>R</kbd> reset
+    </footer>
+  </main>
+
+  <script src="../scripts/timer.js" defer></script>
 </body>
 </html>
