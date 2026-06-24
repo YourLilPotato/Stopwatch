@@ -2,6 +2,7 @@ let startTime   = null;
 let accumulated = 0;    
 let rafId       = null;   
 let running     = false;
+let lapCount    = 0;
 
 const pad = (val, digits = 2) => String(val).padStart(digits, '0');
 
@@ -18,6 +19,7 @@ const display  = document.getElementById('display');
 const startBtn = document.getElementById('start_btn');
 const stopBtn  = document.getElementById('stop_btn');
 const resetBtn = document.getElementById('reset_btn');
+const historyBody = document.getElementById('history-body');
 
 function tick() {
   const elapsed = accumulated + (Date.now() - startTime);
@@ -43,6 +45,16 @@ function stopTimer() {
   cancelAnimationFrame(rafId);
   rafId = null;
 
+  // Add lap to history
+  lapCount++;
+  const elapsed = accumulated;
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td>${lapCount}</td>
+    <td>${format(elapsed)}</td>
+  `;
+  historyBody.appendChild(row);
+
   startBtn.disabled = false;
   stopBtn.disabled  = true;
   resetBtn.disabled = false;
@@ -59,6 +71,8 @@ function resetTimer() {
   startBtn.disabled = false;
   stopBtn.disabled  = true;
   resetBtn.disabled = true;
+
+  // Only reset stopwatch — keep table data as-is
 }
 
 resetTimer()
