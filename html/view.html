@@ -1,45 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bench Timer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <link rel="stylesheet" href="../CSS/style.css">
 </head>
+
 <body>
-  <main class="instrument">
-    <header class="head">
-      <span class="eyebrow">Bench Timer</span>
-      <span class="status" data-status>
-        <span class="status__dot" aria-hidden="true"></span>
-        <span class="status__label" data-status-label>Ready</span>
-      </span>
-    </header>
 
-    <section class="readout" aria-live="off">
-     
-      <div class="time" data-time aria-label="Elapsed time">
-        <span class="time__main" data-main>00:00</span><span class="time__frac" data-frac>.00</span>
-      </div>
-      <div class="sweep" aria-hidden="true">
-        <span class="sweep__fill" data-sweep></span>
-      </div>
-    </section>
+    <div class="theme-toggle-wrapper">
+    <button class="toggle-switch" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <span class="toggle-thumb">
+            <span class="toggle-icon" id="toggle-icon">☀️</span>
+        </span>
+        <span class="toggle-label" id="theme-label">Day Mode</span>
+    </button>
+    </div>
+    <div class="container">
+        <h1 id="display">00:00:00.000</h1>
+        <div class="buttons">
+            <button id="start_btn" onclick="startTimer()"><span>Start</span></button>
+            <button id="stop_btn" onclick="stopTimer()" disabled><span>Stop</span></button>
+            <button id="reset_btn" onclick="resetTimer()"><span>Reset</span></button>
+        </div>
+    </div>
 
-    <section class="controls">
-      <button class="btn btn--start" data-start type="button">Start</button>
-      <button class="btn btn--stop" data-stop type="button" disabled>Stop</button>
-      <button class="btn btn--reset" data-reset type="button" disabled>Reset</button>
-    </section>
+    <script src="../Scripts/timer.js"></script>
 
-    <footer class="hint">
-      <kbd>Space</kbd> start &amp; stop<span class="hint__sep">·</span><kbd>R</kbd> reset
-    </footer>
-  </main>
 
-  <script src="../scripts/timer.js" defer></script>
+    <script>
+    (function () {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('theme-label').textContent = 'Day Mode';
+        document.getElementById('toggle-icon').textContent = '☀️';
+    } else {
+        document.getElementById('theme-label').textContent = 'Night Mode';
+        document.getElementById('toggle-icon').textContent = '🌙';
+    }
+    })();
+</script>
+
 </body>
 </html>
