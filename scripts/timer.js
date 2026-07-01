@@ -1,122 +1,71 @@
+let startTime   = null;   
+let accumulated = 0;    
+let rafId       = null;   
+let running     = false;
 
-(function () {
-  "use strict";
-  // --- Elements ---------------------------------------------
-  const elMain   = document.querySelector("[data-main]");
-  const elFrac   = document.querySelector("[data-frac]");
-  const elSweep  = document.querySelector("[data-sweep]");
-  const elStatus = document.querySelector("[data-status]");
-  const elLabel  = document.querySelector("[data-status-label]");
+const pad = (val, digits = 2) => String(val).padStart(digits, '0');
 
-  const btnStart = document.querySelector("[data-start]");
-  const btnStop  = document.querySelector("[data-stop]");
-  const btnReset = document.querySelector("[data-reset]");
-  // --- State ------------------------------------------------
-  let running    = false;
-  let startStamp = 0;   // performance.now() when the current run began
-  let elapsed    = 0;   // ms accumulated from previous runs
-  let frameId    = null;
+function format(ms) {
+  const h   = Math.floor(ms / 3_600_000);
+  const m   = Math.floor((ms % 3_600_000) / 60_000);
+  const s   = Math.floor((ms % 60_000)    /  1_000);
+  const mil =             ms % 1_000;
 
-  // --- Time helpers -----------------------------------------
-  function currentMs() {
-    return elapsed + (running ? performance.now() - startStamp : 0);
-  }
+  return `${pad(h)}:${pad(m)}:${pad(s)}.${pad(mil, 3)}`;
+}
 
-  function pad(n, width) {
-    return String(n).padStart(width, "0");
-  }
+const display  = document.getElementById('display');
+const startBtn = document.getElementById('start_btn');
+const stopBtn  = document.getElementById('stop_btn');
+const resetBtn = document.getElementById('reset_btn');
 
-  function format(ms) {
-    const totalCs  = Math.floor(ms / 10);          // centiseconds
-    const cs       = totalCs % 100;
-    const totalSec = Math.floor(totalCs / 100);
-    const sec      = totalSec % 60;
-    const totalMin = Math.floor(totalSec / 60);
-    const min      = totalMin % 60;
-    const hrs      = Math.floor(totalMin / 60);
+function tick() {
+  const elapsed = accumulated + (Date.now() - startTime);
+  display.textContent = format(elapsed);
+  rafId = requestAnimationFrame(tick);
+}
 
-    const main = hrs > 0
-      ? `${pad(hrs, 2)}:${pad(min, 2)}:${pad(sec, 2)}`
-      : `${pad(min, 2)}:${pad(sec, 2)}`;
+function startTimer() {
+  if (running) return;
+  running   = true;
+  startTime = Date.now();
+  rafId     = requestAnimationFrame(tick);
 
-    return { main, frac: `.${pad(cs, 2)}` };
-  }
+  startBtn.disabled = true;
+  stopBtn.disabled  = false;
+  resetBtn.disabled = true;
+}
 
-  // --- Render -----------------------------------------------
-  function render() {
-    const ms = currentMs();
-    const { main, frac } = format(ms);
-    elMain.textContent = main;
-    elFrac.textContent = frac;
-    // sweep fills once every second (0–100%)
-    elSweep.style.width = `${((ms % 1000) / 1000) * 100}%`;
-  }
+function stopTimer() {
+  if (!running) return;
+  running      = false;
+  accumulated += Date.now() - startTime;
+  cancelAnimationFrame(rafId);
+  rafId = null;
 
-  function loop() {
-    render();
-    if (running) frameId = requestAnimationFrame(loop);
-  }
+  startBtn.disabled = false;
+  stopBtn.disabled  = true;
+  resetBtn.disabled = false;
+}
 
-  // --- Status + button availability -------------------------
-  function setStatus(state, label) {
-    elStatus.setAttribute("data-state", state);
-    elLabel.textContent = label;
-  }
+function resetTimer() {
+  running     = false;
+  accumulated = 0;
+  startTime   = null;
+  cancelAnimationFrame(rafId);
+  rafId = null;
 
-  function syncButtons() {
-    btnStart.disabled = running;
-    btnStop.disabled  = !running;
-    btnReset.disabled = running || currentMs() === 0;
-  }
+  display.textContent = format(0);   
+  startBtn.disabled = false;
+  stopBtn.disabled  = true;
+  resetBtn.disabled = true;
+}
 
-  // --- Actions ----------------------------------------------
-  function start() {
-    if (running) return;
-    running = true;
-    startStamp = performance.now();
-    setStatus("running", "Running");
-    syncButtons();
-    loop();
-  }
+resetTimer()
 
-  function stop() {
-    if (!running) return;
-    elapsed += performance.now() - startStamp;
-    running = false;
-    if (frameId) cancelAnimationFrame(frameId);
-    render();
-    setStatus("paused", "Paused");
-    syncButtons();
-  }
-
-  function reset() {
-    running = false;
-    if (frameId) cancelAnimationFrame(frameId);
-    elapsed = 0;
-    startStamp = 0;
-    elSweep.style.width = "0%";
-    render();
-    setStatus("ready", "Ready");
-    syncButtons();
-  }
-
-  // --- Wiring -----------------------------------------------
-  btnStart.addEventListener("click", start);
-  btnStop.addEventListener("click", stop);
-  btnReset.addEventListener("click", reset);
-
-  document.addEventListener("keydown", (e) => {
-    // ignore if the user is typing somewhere
-    if (e.target.matches("input, textarea")) return;
-
-    if (e.code === "Space") {
-      e.preventDefault();
-      running ? stop() : start();
-    } else if (e.key === "r" || e.key === "R") {
-      reset();
-    }
-  });
-
-  // --- Init -------------------------------------------------
-  reset();
-})();
+function toggleTheme() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    document.getElementById('theme-label').textContent = isDark ? 'Day Mode' : 'Night Mode';
+    document.getElementById('toggle-icon').innerHTML = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
